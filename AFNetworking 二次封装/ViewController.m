@@ -57,14 +57,17 @@ char sortArray(char *cha){
     char result = sortArray(cha);
     printf("%c", result);
     
-    VNRequestOperation *operation = [[VNRequestOperation alloc]initOperationWithTask:^{
-        downTask =  [VNHttpRequestManager downLoadRequest:@"http://dldir1.qq.com/qqfile/QQforMac/QQ_V5.4.0.dmg"  filePath:nil downProgress:^(double progress) {
-            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                NSLog(@"%f",progress);
-            }];
-        } complement:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
-            
+    downTask =  [VNHttpRequestManager downLoadRequest:@"http://dldir1.qq.com/qqfile/QQforMac/QQ_V5.4.0.dmg"  filePath:nil downProgress:^(double progress) {
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            NSLog(@"%f",progress);
         }];
+    } complement:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
+        
+    }];
+    
+    
+    VNRequestOperation *operation = [[VNRequestOperation alloc]initOperationWithTask:^{
+
     }];
     operation.name = @"com.678";
     
