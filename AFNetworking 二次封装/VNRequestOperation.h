@@ -7,11 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "VNOperationProtocol.h"
+#import "VNOperationAdapter.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface VNRequestOperation : NSOperation<VNOperationProtocol>
+@interface VNRequestOperation : NSOperation<VNOperationAdapter>
 
 
 @end

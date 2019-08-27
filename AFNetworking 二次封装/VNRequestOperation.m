@@ -49,7 +49,6 @@ typedef void(^OperationBlock)(void);
         }
         
         _taskBlock();
-        NSLog(@"=======");
 //        [_lock unlock];
         [self done];
     }

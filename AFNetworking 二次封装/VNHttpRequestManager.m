@@ -6,7 +6,14 @@
 //  Copyright © 2018年 guohq. All rights reserved.
 //
 
-
+#ifndef dispatch_main_async_safe
+#define dispatch_main_async_safe(block)\
+if (dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL) == dispatch_queue_get_label(dispatch_get_main_queue())) {\
+block();\
+} else {\
+dispatch_async(dispatch_get_main_queue(), block);\
+}
+#endif
 
 #import "VNHttpRequestManager.h"
 #import "AFNetworking.h"
@@ -14,7 +21,7 @@
 
 static NSMutableDictionary *headerDic;
 //setting request header then delete headerDic , default YES,
-static BOOL         setedDelete = YES;
+static BOOL         setedDelete = NO;
 
 @interface AFHttpClientManager : AFHTTPSessionManager
 
@@ -49,12 +56,13 @@ static AFHttpClientManager *client = nil;
         client.requestQueue.maxConcurrentOperationCount    =  6;
         
         //response data type
-        client.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/html", @"text/javascript",@"text/plain",@"image/gif", nil];
+        client.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/html", @"text/javascript",@"text/plain",@"image/gif",@"image/jpeg", nil];
         
     });
     
     return client;
 }
+
 
 // 不同请求头部设置
 + (void)requestSerializerSetting:(AFHTTPRequestSerializer *)requestSerializer{
@@ -63,13 +71,11 @@ static AFHttpClientManager *client = nil;
     [requestSerializer willChangeValueForKey:@"timeoutInterval"];
     requestSerializer.timeoutInterval = 20.f;
     [requestSerializer didChangeValueForKey:@"timeoutInterval"];
+    
     @synchronized (client.requestSerializer) {
         if (headerDic.allKeys.count) {
             for (NSString *key in headerDic) {
                 [client.requestSerializer setValue:headerDic[key] forHTTPHeaderField:key];
-                if (setedDelete) {
-                    [headerDic removeObjectForKey:key];
-                }
             }
         }
     }
@@ -96,9 +102,6 @@ static AFHttpClientManager *client = nil;
         if (headerDic.allKeys.count) {
             for (NSString *key in headerDic) {
                 [client.requestSerializer setValue:headerDic[key] forHTTPHeaderField:key];
-                if (setedDelete) {
-                    [headerDic removeObjectForKey:key];
-                }
             }
         }
     }
@@ -126,16 +129,12 @@ static AFHttpClientManager *client = nil;
     // json格式 请求参数
     client.requestSerializer = [AFJSONRequestSerializer serializer];
     [client.requestSerializer setValue:@"application/json;charset=utf-8" forHTTPHeaderField:@"Content-Type"];
+    // 请求头设置
+    [AFHttpClientManager  requestSerializerSetting:client.requestSerializer];
     
-    typeof(client) weakClient = client;
-    VNRequestOperation<VNOperationProtocol> *requestOperation = [[VNRequestOperation alloc]initOperationWithTask:^{
-        // 请求头设置
-        [AFHttpClientManager  requestSerializerSetting:weakClient.requestSerializer];
-        
-        [VNHttpRequestManager requestWidth:requestMethod requestManager:weakClient pathUrl:pathUrl params:params requestCount:0 complement:result];
-    }];
+    [VNHttpRequestManager requestWidth:requestMethod requestManager:client pathUrl:pathUrl params:params requestCount:0 complement:result];
     
-    [client.requestQueue addOperation:requestOperation];
+
 }
 
 //JSON 参数加密类型
@@ -188,13 +187,11 @@ static AFHttpClientManager *client = nil;
     // formData格式 请求参数
     client.requestSerializer = [AFHTTPRequestSerializer serializer];
     [client.requestSerializer setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+
     // 请求头设置
-    typeof(client) weakClient = client;
-    VNRequestOperation<VNOperationProtocol> *requestOperation = [[VNRequestOperation alloc]initOperationWithTask:^{
-        [AFHttpClientManager  requestSerializerSetting:weakClient.requestSerializer];
-        [VNHttpRequestManager requestWidth:requestMethod requestManager:weakClient pathUrl:pathUrl params:params requestCount:0 complement:result];
-    }];
-    [client.requestQueue addOperation:requestOperation];
+    [AFHttpClientManager  requestSerializerSetting:client.requestSerializer];
+    [VNHttpRequestManager requestWidth:requestMethod requestManager:client pathUrl:pathUrl params:params requestCount:0 complement:result];
+
 }
 
 //上传文件
@@ -277,7 +274,7 @@ static AFHttpClientManager *client = nil;
 }
 
 + (void)deleteHeaderSeting:(BOOL)result{
-    setedDelete = result;
+//    setedDelete = result;
 }
 
 #pragma mark------------------------------------  私有方法   --------------------------------------------------
@@ -304,9 +301,9 @@ static AFHttpClientManager *client = nil;
                                             [VNHttpRequestManager requestWidth:method requestManager:manager pathUrl:pathUrl params:params requestCount:count complement:result];
                                             
                                         }else{
-                                            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                                            dispatch_main_async_safe(^{
                                                 result(serverInfo);
-                                            }];
+                                            })
                                         }
                                         
                                     }];
@@ -344,8 +341,10 @@ static AFHttpClientManager *client = nil;
         NSLog(@"URL Value=%@",serverUrl);
         NSLog(@"Parms Value=%@",params);
 #endif
-        [VNHttpRequestManager handleSuccessTask:task responseObject:responseObject complement:result];
-        
+        VNRequestOperation<VNOperationAdapter> *requestOperation = [[VNRequestOperation alloc]initOperationWithTask:^{
+            [VNHttpRequestManager handleSuccessTask:task responseObject:responseObject complement:result];
+        }];
+        [manager.requestQueue addOperation:requestOperation];
     };
     
     void (^failureBlock)(NSURLSessionDataTask *,NSError *) =^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
@@ -354,8 +353,10 @@ static AFHttpClientManager *client = nil;
         NSLog(@"URL Value=%@",serverUrl);
         NSLog(@"Parms Value=%@",params);
 #endif
-        [VNHttpRequestManager handleFailTask:task error:error complement:result];
-        
+        VNRequestOperation<VNOperationAdapter> *requestOperation = [[VNRequestOperation alloc]initOperationWithTask:^{
+            [VNHttpRequestManager handleFailTask:task error:error complement:result];
+        }];
+        [manager.requestQueue addOperation:requestOperation];
         
     };
     
@@ -546,7 +547,9 @@ static AFHttpClientManager *client = nil;
 
 // unicode 编码汉化
 +(NSString *)replaceUnicode:(NSString*)unicodeStr{
-    
+    if (unicodeStr.length == 0) {
+        return @"";
+    }
     NSString *tempStr1=[unicodeStr stringByReplacingOccurrencesOfString:@"\\u"withString:@"\\U"];
     NSString *tempStr2=[tempStr1 stringByReplacingOccurrencesOfString:@"\""withString:@"\\\""];
     NSString *tempStr3=[[@"\""stringByAppendingString:tempStr2]stringByAppendingString:@"\""];
@@ -585,10 +588,11 @@ static AFHttpClientManager *client = nil;
             
 #ifdef DEBUG
             NSLog(@"数据解析错误 -JSONValue failed. Error trace is: %@,\n JSON:%@", error,strJSON);
+            NSLog(@"Response Value = %@",data );
 #endif
             
-            if (!jsonObject) {
-                complement(error,nil);
+            if (!jsonObject || [jsonObject length] == 0) {
+                complement(nil,data);
                 return;
             }
             

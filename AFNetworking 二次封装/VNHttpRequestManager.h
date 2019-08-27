@@ -126,7 +126,7 @@ typedef void(^resultBlock)(ServerResponseInfo * _Nullable serverInfo);
  @param result 是否需要删除请求头，不删除就会多次设置，浪费时间
  
  */
-+ (void)deleteHeaderSeting:(BOOL)result;
+//+ (void)deleteHeaderSeting:(BOOL)result;
 
 
 /**

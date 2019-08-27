@@ -56,7 +56,7 @@
 		3E2711082112FA3D007E90AE /* AFNetworking_____UITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "AFNetworking_____UITests.m"; sourceTree = "<group>"; };
 		3E27110A2112FA3D007E90AE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3E447DF822F95AD3000C6B13 /* VNRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VNRequestOperation.m; sourceTree = "<group>"; };
-		3E447DF922F95AD3000C6B13 /* VNOperationProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VNOperationProtocol.h; sourceTree = "<group>"; };
+		3E447DF922F95AD3000C6B13 /* VNOperationAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VNOperationAdapter.h; sourceTree = "<group>"; };
 		3E447DFA22F95AD3000C6B13 /* VNRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VNRequestOperation.h; sourceTree = "<group>"; };
 		3EE9048B2113047900AEF8D3 /* VNHttpRequestManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VNHttpRequestManager.h; sourceTree = "<group>"; };
 		3EE9048C2113047900AEF8D3 /* VNHttpRequestManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VNHttpRequestManager.m; sourceTree = "<group>"; };
@@ -130,7 +130,7 @@
 				3E2710E82112FA3D007E90AE /* ViewController.m */,
 				3EE9048B2113047900AEF8D3 /* VNHttpRequestManager.h */,
 				3EE9048C2113047900AEF8D3 /* VNHttpRequestManager.m */,
-				3E447DF922F95AD3000C6B13 /* VNOperationProtocol.h */,
+				3E447DF922F95AD3000C6B13 /* VNOperationAdapter.h */,
 				3E447DFA22F95AD3000C6B13 /* VNRequestOperation.h */,
 				3E447DF822F95AD3000C6B13 /* VNRequestOperation.m */,
 				3E2710EA2112FA3D007E90AE /* Main.storyboard */,

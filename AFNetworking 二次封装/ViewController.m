@@ -19,6 +19,7 @@
     NSOperationQueue *queue;
 }
 @property (nonatomic, strong) NSMutableArray *itemArr;
+@property (weak, nonatomic) IBOutlet UIImageView *imageVIew;
 
 - (void)afsdfadsfasfa;
 @end
@@ -53,9 +54,24 @@ char sortArray(char *cha){
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    char cha[] = "afdsfasd";
-    char result = sortArray(cha);
-    printf("%c", result);
+//    char cha[] = "afdsfasd";
+//    char result = sortArray(cha);
+//    printf("%c", result);
+    
+//    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+//    manager.responseSerializer    = [AFHTTPResponseSerializer serializer];
+//    manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/html", @"text/javascript",@"text/plain",@"image/gif",@"image/jpeg", nil];
+//    [manager GET:@"http://a.hiphotos.baidu.com/lvpics/h=800/sign=2d496375d739b60052ce02b7d9513526/a6efce1b9d16fdfa97d6a678b68f8c5495ee7be9.jpg" parameters:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+//        NSLog(@"%@",responseObject);
+//    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+//
+//    }];
+    
+    [VNHttpRequestManager sendFORMRequestWithMethod:RequestMethod_Get pathUrl:@"http://a.hiphotos.baidu.com/lvpics/h=800/sign=2d496375d739b60052ce02b7d9513526/a6efce1b9d16fdfa97d6a678b68f8c5495ee7be9.jpg" params:nil complement:^(ServerResponseInfo * _Nullable serverInfo) {
+
+    }];
+    
+    return;
     
     downTask =  [VNHttpRequestManager downLoadRequest:@"http://dldir1.qq.com/qqfile/QQforMac/QQ_V5.4.0.dmg"  filePath:nil downProgress:^(double progress) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
@@ -67,17 +83,26 @@ char sortArray(char *cha){
     
     
     VNRequestOperation *operation = [[VNRequestOperation alloc]initOperationWithTask:^{
+        
+        [self uuuuuuuuu:^{
+            NSLog(@"完成");
+        }];
 
     }];
     operation.name = @"com.678";
-    
+
     queue                               = [[NSOperationQueue alloc]init];
     queue.name                          = @"com.guohq";
     queue.maxConcurrentOperationCount   = 2;
-    
+
     [queue addOperation:operation];
     
     
+//    for (int i = 0; i < 6; i++) {
+//        [self taskAction:i complement:^{
+//            NSLog(@"%d 任务已完成",i);
+//        }];
+//    }
     
     
    
@@ -117,6 +142,27 @@ char sortArray(char *cha){
 //        NSLog(@"====");
 //    }];
 //
+}
+
+- (void)taskAction:(int)count complement:(void(^)(void))completment{
+  
+    
+    VNRequestOperation *operation = [[VNRequestOperation alloc]initOperationWithTask:^{
+        for (int i = 0; i < 1000; i++) {
+            NSLog(@"name=%d   %d", count,i);
+        }
+        completment();
+        
+    }];
+    operation.name = [NSString stringWithFormat:@"com.66==%d",count];
+    [queue addOperation:operation];
+    
+}
+
+- (void)uuuuuuuuu:(void(^)(void))completment{
+    for (int i = 0; i < 1000; i++) {
+        NSLog(@"%d",i);
+    }
 }
 
 
@@ -180,6 +226,8 @@ double getMemoryUsage(void) {
 
 - (IBAction)downAction:(id)sender {
         [VNHttpRequestManager startResume:downTask];
+    
+    
     // 时间戳转时间
 //    NSTimeInterval time = [[NSDate date] timeIntervalSince1970]*1000;
 //
